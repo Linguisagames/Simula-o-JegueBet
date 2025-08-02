@@ -1,5 +1,4 @@
 let saldoAtual;
-let tic = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3");
 let frames = 0;
 let animationFrameId;
 let podeRodar = true;
@@ -81,7 +80,6 @@ function gerarColuna(rigged){
 function apagarBloco(){
   const blocoParaRemover = blocosAtivos.shift();
   if (blocoParaRemover) { 
-tic.play();
   blocoParaRemover.remove();
 }
 }
@@ -138,4 +136,4 @@ function criarBotao(tipo, texto, funcao){
     } else {
       botaoDiv.appendChild(botao);
     }
-}
+  }
