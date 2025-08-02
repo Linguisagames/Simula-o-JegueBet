@@ -123,7 +123,7 @@ function limparFocusRoleta(){
     }, 2000);
 }
 function focusRoleta() {
-  const overlay = document.createElement("div");
+  overlay = document.createElement("div");
   overlay.classList.add("overlay");
   game.appendChild(overlay);
 
