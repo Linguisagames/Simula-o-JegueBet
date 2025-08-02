@@ -1,0 +1,80 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+body {
+  display: block;
+  width: 100dvw;
+  height: 100dvh;
+  background: url("BackgroundIMG.png") no-repeat center center/cover;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  font-family: sans-serif;
+}
+.botaoDiv {
+  width: 15vw;
+  height: 5vh;
+  
+}
+.botao {
+  padding: 10px 20px;
+  background-color: #f6b624;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  transition: 0.2s;
+}
+.botao.botaoI {
+  border-radius: 100%;
+  background-color: #f6b624;
+  font-weight: bold;
+  padding: 10px 16px;
+}
+.areaRoleta {
+  z-index: 6;
+  display: flex;
+  width: 340px;
+  height: 280px;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 35%;
+  gap: 10px;
+  padding: 10px;
+  background-color: #f6b624;
+  border-radius: 20px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2),
+            0 4px 8px rgba(0, 0, 0, 0.15);
+}
+.areaRoleta::after {
+  content: "";
+  z-index: 5;
+  background: url(Jegue1.png) no-repeat center/contain;
+  position: absolute;
+  width: 400px; /* ou o tamanho que quiser */
+  height: 400px;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 68%;
+  pointer-events: none;
+}
+.divRoleta {
+  z-index: 5;
+  left: 50%;
+  background-color: #eee;
+  transform: translateX(-50%);
+  width: 300px;
+  border-radius: 20px;
+  height: 280px;
+  display: flex;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+}
+.overlay {
+  z-index: 4;
+  backdrop-filter: blur(80);
+  background-color: rgba(0,0,0,0.591);
+}
