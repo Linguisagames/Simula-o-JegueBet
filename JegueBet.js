@@ -156,6 +156,7 @@ function limparRoleta() {
     podeParar = false;
     podeRodar = true;
     velocidade = 7;
+    rigged = null;
 
     blocosAtivos.forEach((bloco) => {
       bloco.style.transition = "all 0.8s ease";
