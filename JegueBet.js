@@ -1,4 +1,4 @@
-let saldoAtual;
+let saldoAtual = 1000;
 let overlay;
 let frames = 0;
 let quantidadeDeBlocos = 0;
@@ -10,7 +10,7 @@ let podeParar = false;
 let areaRoleta;
 let divRoleta;
 let velocidade = 7;
-let falsaEsperança = 0;
+let falsaEsperança = 50;
 let numeroAtual;
 let ultimoNumero;
 let rigged = null;
@@ -19,8 +19,8 @@ const game = document.getElementById("game");
 criarHud();
 function criarHud(){
   criarAreaRoleta();
-  criarBotao("botaoPlay", "jogar", iniciarRoleta);
-  criarBotao("botaoI", "i", gerarColuna);
+  criarBotao("botaoPlay", "JOGAR", iniciarRoleta);
+  //criarBotao("botaoI", "i", gerarColuna);
 }
 function criarAreaRoleta(){
   areaRoleta = document.createElement("div");
@@ -41,7 +41,7 @@ function criarNumero(numeroAtual){
  bloco.style.transform = "translateY(-40%)";
  bloco.style.opacity = "0";
  setTimeout(() =>{
-   bloco.style.transform = "traslateY(0))";
+   bloco.style.transform = "translateY(0))";
    bloco.style.opacity = "1";
  }, 10);
 }
@@ -51,7 +51,7 @@ function setarEstiloBloco(elemento){
   let coluna = index % 3;
   let top = 0;
   let left = coluna * 80;
-  elemento.zIndex = "4";
+  elemento.style.zIndex = "4";
   elemento.style.transition = "transform 0.5s, opacity 0.4s";
   elemento.style.top = top + "px";
   elemento.style.left = left + "px";
@@ -102,7 +102,7 @@ function apagarBloco(){
 
 function gerenciarResultado(){
    let chance = Math.floor(Math.random() * 100) +1;
-   if (chance > 0) rigged = false;
+   if (chance > falsaEsperança) rigged = false; else rigged = true;
    if (rigged) {
    gerarColuna(true); 
    }else if (!rigged) {
@@ -130,7 +130,6 @@ function focusRoleta() {
   const jegue = document.createElement("div");
   jegue.classList.add("jegue");
   game.appendChild(jegue);
-
   jegue.style.transform = "translate(-50%, 100%)";
 
   setTimeout(() => {
@@ -146,36 +145,44 @@ function focusRoleta() {
     jegue.remove();
     overlay.style.zIndex = "4";
   }, 5000);
-}
-function limparRoleta(){
-  quantidadeDeBlocos= 0;
-  frames = 0;
-  podeRodar = true;
-  estaParando = false;
-  podeParar = false;
-  velocidade = 7;
-  blocosAtivos.forEach((bloco) => {
-  bloco.style.transition = "all 0.8s ease";
-  bloco.style.opacity = "0";
-});
-  setTimeout (() => {
-  blocosAtivos.forEach((bloco) => {
-  bloco.style.opacity = "0";
-  bloco.remove();
-});
-blocosAtivos.length = 0;
-  }, 500)
-}
-function iniciarRoleta(){
-  if (rodando) return;
-  focusRoleta()
-  limparRoleta();
-  setTimeout (() => {
-  requestAnimationFrame(animarRoleta);
   setTimeout(() => {
-    estaParando = true;
   }, 5000);
-  }, 3000);
+}
+function limparRoleta() {
+  return new Promise((resolve, reject) => {
+    quantidadeDeBlocos = 0;
+    frames = 0;
+    estaParando = false;
+    podeParar = false;
+    podeRodar = true;
+    velocidade = 7;
+
+    blocosAtivos.forEach((bloco) => {
+      bloco.style.transition = "all 0.8s ease";
+      bloco.style.opacity = "0";
+    });
+
+    setTimeout(() => {
+      blocosAtivos.forEach((bloco) => {
+        bloco.remove();
+      });
+      blocosAtivos.length = 0;
+      resolve();
+      focusRoleta();
+    }, 500);
+  });
+}
+
+function iniciarRoleta() {
+  limparRoleta().then(() => {
+    if (rodando) return;
+    setTimeout(() => {
+      requestAnimationFrame(animarRoleta);
+      setTimeout(() => {
+        estaParando = true;
+      }, 5000);
+    }, 2000);
+  });
 }
 function animarRoleta(){
   if (!podeRodar) return;
@@ -195,8 +202,8 @@ function animarRoleta(){
   let blocosAtivoslength = blocosAtivos.length;
   if (frames > 15 && blocosAtivos.length < 9){
     if (quantidadeDeBlocos <= 56){
-criarColunaAleatoria();
-quantidadeDeBlocos++
+    criarColunaAleatoria();
+    quantidadeDeBlocos++
 } else if (quantidadeDeBlocos === 57){
     criarColunaAleatoria();
     quantidadeDeBlocos++
@@ -215,12 +222,61 @@ if (podeParar && blocosAtivos[0].offsetTop < 191 && blocosAtivos[0].offsetTop > 
   velocidade = 0;
   rodando = false;
   limparFocusRoleta();
+  mostrarResultado(rigged)
   cancelAnimationFrame(animationFrameId);
   return
 }
    animationFrameId = requestAnimationFrame(animarRoleta);
 }
-
+function criarElementosdoResultado(){
+  const divResultado = document.createElement("div");
+  divResultado.classList.add("divResultado");
+  game.appendChild(divResultado);
+  const h1Resultado = document.createElement("h1");
+  h1Resultado.classList.add("h1Resultado");
+  divResultado.appendChild(h1Resultado);
+  const pResultado = document.createElement("p");
+  pResultado.classList.add("pResultado");
+  divResultado.appendChild(pResultado);
+  return { divResultado, h1Resultado, pResultado };
+}
+function setarResultado(resultado){
+  const { divResultado, h1Resultado, pResultado } = criarElementosdoResultado();
+  if (resultado === "ganhou"){
+    h1Resultado.innerText = "Você ganhou!";
+    pResultado.innerText = "+500R$";
+    pResultado.style.color = "#097f47";
+  } else if (resultado === "perdeu"){
+    h1Resultado.innerText = "Você perdeu!";
+    document.body.classList.add("shakeTela");
+    setTimeout(() => {
+      document.body.classList.remove("shakeTela");
+    }, 1000);
+    pResultado.innerText = "-500R$";
+    pResultado.style.color = "#c50f0f";
+  }
+  animarResultado(divResultado);
+}
+function animarResultado(div){
+  div.style.transform = "translateY(-500%) scale(0.4)";
+  setTimeout(() => {
+    div.style.transform = "translateY(10%) scale(1.2)";
+    setTimeout (() => {
+      div.style.transform = "translateY(-500%) scale(0.4)";
+      setTimeout(() => {
+        div?.remove();
+      }, 5000);
+    }, 4000);
+  }, 500);
+  
+}
+function mostrarResultado(rigged){
+  if (rigged) {
+    setarResultado("perdeu");
+  }else if (!rigged){
+    setarResultado("ganhou");
+  }
+}
 function criarBotao(tipo, texto, funcao){
   const botaoDiv = document.createElement("div");
   botaoDiv.classList.add("botaoDiv");
@@ -230,6 +286,10 @@ function criarBotao(tipo, texto, funcao){
   botao.innerText = texto;
     botao.addEventListener("click", ()=> {
       funcao();
+      botao.style.pointerEvents = "none";
+      setTimeout(() => {
+        botao.style.pointerEvents = "auto";
+      }, 3000);
     });
     if (tipo === "botaoI"){
       botao.classList.add("botaoI");
