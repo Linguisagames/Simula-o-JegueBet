@@ -13,16 +13,21 @@ body {
   font-family: 'Open Sans', sans-serif;
 }
 .botaoDiv {
-  width: 15vw;
-  height: 5vh;
-  
+  width: 20vw;
+  height: 7vh;
+  top: 80%;
+  left: 50%;
+  position: fixed;
 }
 .botao {
+  font-size: 1.8rem;
   padding: 10px 20px;
   background-color: #f6b624;
   border: none;
-  border-radius: 8px;
+  border-radius: 20px;
   color: white;
+    left: 50%;
+  transform: translateX(-50%);
   font-weight: bold;
   transition: 0.2s;
 }
@@ -81,7 +86,7 @@ body {
   opacity: 0;
   min-height: 100%;
   min-width: 100%;
-  z-index: 5;
+  z-index: 4;
   transition: all 0.8s ease;
   backdrop-filter: blur(20px);
   background-color: rgba(0,0,0,0.591);
@@ -96,10 +101,58 @@ body {
   bottom: 0;
   transform: translate(-50%, 100%);
   transition: transform 2s ease;
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.25)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
 }
-.jegue::after{
+
+.jegue::after {
   content: "";
   width: 100%;
   height: 100%;
   z-index: 6;
+}
+
+.divResultado {
+  background: rgba(255,255,255,0.353);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
+  outline: 1px solid rgba(255, 255, 255, 0.3);
+  width: 159px;
+  z-index: 9999;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  position: fixed;
+  top: 5px;
+  left: 50%;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all 2s ease-in-out;
+}
+
+.h1Resultado {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #000;
+  margin: 0;
+  transition: all 2s ease-in-out;
+}
+
+.pResultado {
+  font-size: 0.9rem;
+  color: #222;
+  margin: 0;
+  transition: all 2s ease-in-out;
+}
+@keyframes shake {
+  0%   { transform: translate(0, 0); }
+  20%  { transform: translate(-5px, 5px); }
+  40%  { transform: translate(5px, -5px); }
+  60%  { transform: translate(-5px, 5px); }
+  80%  { transform: translate(5px, -5px); }
+  100% { transform: translate(0, 0); }
+}
+.shakeTela {
+  animation: shake 1s infinite;
 }
