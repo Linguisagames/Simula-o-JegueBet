@@ -1,49 +1,139 @@
-let saldoAtual = 1000;
 let overlay;
-let frames = 0;
-let quantidadeDeBlocos = 0;
-let animationFrameId;
-let podeRodar = true;
-let rodando = false;
-let estaParando = false;
-let podeParar = false;
-let areaRoleta;
-let divRoleta;
-let velocidade = 7;
-let falsaEsperança = 50;
-let numeroAtual;
-let ultimoNumero;
-let rigged = null;
 let blocosAtivos = [];
 const game = document.getElementById("game");
+const roleta = {
+  frames: 0,
+  quantidadeDeBlocos: 0,
+  animationFrameId: null,
+  podeRodar: true,
+  rodando: false,
+  estaParando: false,
+  podeParar: false,
+  areaRoleta: null,
+  divRoleta: null,
+  velocidade: 7,
+  falsaEsperança: 50,
+  numeroAtual: null,
+  ultimoNumero: null,
+  rigged: null,
+};
+const gerenciadorDeSaldo = {
+  saldoAtual: 1000,
+  valorApostado: null,
+  areaAposta: null,
+  areaSaldo: null,
+  pAreaAposta: null,
+  atualizarSaldo(novoValor, a) {
+    this.saldoAtual = novoValor;
+    a.innerText = "SALDO = " + this.saldoAtual;
+  }
+};
+
+// funcões relacionadas a criação do hud
 criarHud();
 function criarHud(){
   criarAreaRoleta();
-  criarBotao("botaoPlay", "JOGAR", iniciarRoleta);
+  criarAreaSaldo();
+  criarBotao("botaoPlay", "JOGAR", gerenciarAreaAposta);
   //criarBotao("botaoI", "i", gerarColuna);
 }
 function criarAreaRoleta(){
-  areaRoleta = document.createElement("div");
-  areaRoleta.classList.add("areaRoleta");
-  game.appendChild(areaRoleta);
-  divRoleta = document.createElement("div");
-  divRoleta.classList.add("divRoleta");
-  areaRoleta.appendChild(divRoleta);
+  roleta.areaRoleta = document.createElement("div");
+  roleta.areaRoleta.classList.add("areaRoleta");
+  game.appendChild(roleta.areaRoleta);
+  roleta.divRoleta = document.createElement("div");
+  roleta.divRoleta.classList.add("divRoleta");
+  roleta.areaRoleta.appendChild(roleta.divRoleta);
 }
+function criarAreaSaldo(){
+  gerenciadorDeSaldo.areaSaldo = document.createElement("div");
+  gerenciadorDeSaldo.areaSaldo.classList.add("areaSaldo");
+  game.appendChild(gerenciadorDeSaldo.areaSaldo);
+  gerenciadorDeSaldo.atualizarSaldo(gerenciadorDeSaldo.saldoAtual, gerenciadorDeSaldo.areaSaldo);
+}
+
+// funcões relacionadas ao gerenciamento do valor da aposta
+function gerenciarAreaAposta(){
+  gerenciadorDeSaldo.areaAposta = document.createElement("div");
+  gerenciadorDeSaldo.areaAposta.classList.add("areaAposta");
+  game.appendChild(gerenciadorDeSaldo.areaAposta);
+  gerenciadorDeSaldo.pAreaAposta = document.createElement("p");
+  gerenciadorDeSaldo.pAreaAposta.classList.add("pAreaAposta");
+  gerenciadorDeSaldo.areaAposta.appendChild(gerenciadorDeSaldo.pAreaAposta);
+  animarEntradadaAreaAposta(gerenciadorDeSaldo.areaAposta);
+  setTimeout(() => {
+    gerenciadorDeSaldo.atualizarSaldo(1000, gerenciadorDeSaldo.pAreaAposta);
+    criarBotoesDeAposta(gerenciadorDeSaldo.areaAposta);
+  }, 2500);
+}
+function animarEntradadaAreaAposta(a){
+  a.classList.add("minimizado");
+  setTimeout(() => {
+    a.classList.remove("minimizado");
+  }, 1900);
+  a.style.transform = "translateY(1000%)";
+  setTimeout(() => {
+  a.style.transform = "translateY(-20%)";
+  setTimeout(() => {
+    a.style.transform = "translateY(0%)";
+  }, 1400);
+  }, 1150);
+}
+function animarSaidadaAreaAposta(a){
+  a.style.transform = "translateY(0%)";
+  setTimeout(() => {
+  a.style.transform = "translateY(-20%)";
+  a.classList.add("minimizado");
+  setTimeout(() => {
+    a.style.transform = "translateY(1000%)";
+    setTimeout(() =>{
+    a.remove();
+    }, 1100);
+  }, 1000);
+    a.innerHTML = "";
+  }, 950);
+}
+
+function criarBotaoDeAposta(valor, a){
+  const botaoAposta = document.createElement("button");
+  botaoAposta.classList.add("botaoAposta");
+  a.appendChild(botaoAposta);
+  botaoAposta.innerText = valor;
+  botaoAposta.addEventListener("click", () => {
+    let novoValor = gerenciadorDeSaldo.saldoAtual - valor;
+    gerenciadorDeSaldo.valorApostado = valor;
+    gerenciadorDeSaldo.atualizarSaldo(novoValor, gerenciadorDeSaldo.pAreaAposta);
+    animarSaidadaAreaAposta(gerenciadorDeSaldo.areaAposta);
+    iniciarRoleta();
+    botaoAposta.style.pointerEvents = "none";
+  });
+  botaoAposta.classList.add("surgir");
+  setTimeout (() => {
+    botaoAposta.classList.remove("surgir");
+  }, 1500);
+}
+function criarBotoesDeAposta(a){
+  criarBotaoDeAposta(50, a);
+  criarBotaoDeAposta(100, a);
+  criarBotaoDeAposta(250, a);
+  criarBotaoDeAposta(500, a);
+}
+
+// funcões relacionadas a criação de numeros
 function criarNumero(numeroAtual){
- const bloco = document.createElement("div");
- bloco.classList.add("bloco");
- divRoleta.appendChild(bloco);
- bloco.innerText = numeroAtual;
- bloco.dataset.id = Date.now();
- blocosAtivos.push(bloco);
- setarEstiloBloco(bloco);
- bloco.style.transform = "translateY(-40%)";
- bloco.style.opacity = "0";
- setTimeout(() =>{
-   bloco.style.transform = "translateY(0))";
-   bloco.style.opacity = "1";
- }, 10);
+  const bloco = document.createElement("div");
+  bloco.classList.add("bloco");
+  roleta.divRoleta.appendChild(bloco);
+  bloco.innerText = numeroAtual;
+  bloco.dataset.id = Date.now();
+  blocosAtivos.push(bloco);
+  setarEstiloBloco(bloco);
+  bloco.style.transform = "translateY(-40%)";
+  bloco.style.opacity = "0";
+  setTimeout(() =>{
+    bloco.style.transform = "translateY(0))";
+    bloco.style.opacity = "1";
+  }, 10);
 }
 function setarEstiloBloco(elemento){
   let index = blocosAtivos.length - 1;
@@ -68,26 +158,26 @@ function setarEstiloBloco(elemento){
   elemento.style.textAlign = "center";
 }
 function gerarNumero(estado){
-    if (estado === "repetir") {
-   numeroAtual = ultimoNumero;
-   criarNumero(numeroAtual);
-    } else if(estado === "gerar"){
-    numeroAtual = Math.floor(Math.random()*9) + 1;
-    criarNumero(numeroAtual);
-    ultimoNumero = numeroAtual;
-    }
- }
+  if (estado === "repetir") {
+    roleta.numeroAtual = roleta.ultimoNumero;
+    criarNumero(roleta.numeroAtual);
+  } else if(estado === "gerar"){
+    roleta.numeroAtual = Math.floor(Math.random()*9) + 1;
+    criarNumero(roleta.numeroAtual);
+    roleta.ultimoNumero = roleta.numeroAtual;
+  }
+}
 function gerarColuna(rigged){
-   if (rigged){ 
-   for (let i = 0; i < 3; i++) {
-     gerarNumero("gerar");
-   }
-   } else if (!rigged){
-     gerarNumero("gerar");
-     gerarNumero("repetir");
-     gerarNumero("repetir");
-   }
- }
+  if (rigged){ 
+    for (let i = 0; i < 3; i++) {
+      gerarNumero("gerar");
+    }
+  } else if (!rigged){
+    gerarNumero("gerar");
+    gerarNumero("repetir");
+    gerarNumero("repetir");
+  }
+}
 function apagarBloco(){
   const blocoParaRemover = blocosAtivos.shift();
   if (blocoParaRemover) {
@@ -99,28 +189,29 @@ function apagarBloco(){
     }, 500);
   }
 }
-
 function gerenciarResultado(){
-   let chance = Math.floor(Math.random() * 100) +1;
-   if (chance > falsaEsperança) rigged = false; else rigged = true;
-   if (rigged) {
-   gerarColuna(true); 
-   }else if (!rigged) {
-     gerarColuna(false);
- }
+  let chance = Math.floor(Math.random() * 100) +1;
+  if (chance > roleta.falsaEsperança) roleta.rigged = false; else roleta.rigged = true;
+  if (roleta.rigged) {
+    gerarColuna(true); 
+  } else if (!roleta.rigged) {
+    gerarColuna(false);
+  }
 }
- function criarColunaAleatoria(){
-   if (Math.random() < 0.99) {
-        gerarColuna(!rigged);
-    } else {
-   gerarColuna(rigged);
+function criarColunaAleatoria(){
+  if (Math.random() < 0.99) {
+    gerarColuna(!roleta.rigged);
+  } else {
+    gerarColuna(roleta.rigged);
+  }
 }
- }
+
+// funcões relacionadas a inicialização da roleta
 function limparFocusRoleta(){
   overlay.style.opacity = "0";
-    setTimeout (() => {
+  setTimeout (() => {
     overlay.remove();
-    }, 2000);
+  }, 2000);
 }
 function focusRoleta() {
   overlay = document.createElement("div");
@@ -150,13 +241,13 @@ function focusRoleta() {
 }
 function limparRoleta() {
   return new Promise((resolve, reject) => {
-    quantidadeDeBlocos = 0;
-    frames = 0;
-    estaParando = false;
-    podeParar = false;
-    podeRodar = true;
-    velocidade = 7;
-    rigged = null;
+    roleta.quantidadeDeBlocos = 0;
+    roleta.frames = 0;
+    roleta.estaParando = false;
+    roleta.podeParar = false;
+    roleta.podeRodar = true;
+    roleta.velocidade = 7;
+    roleta.rigged = null;
 
     blocosAtivos.forEach((bloco) => {
       bloco.style.transition = "all 0.8s ease";
@@ -173,62 +264,66 @@ function limparRoleta() {
     }, 500);
   });
 }
-
 function iniciarRoleta() {
   limparRoleta().then(() => {
-    if (rodando) return;
+    if (roleta.rodando) return;
     setTimeout(() => {
       requestAnimationFrame(animarRoleta);
       setTimeout(() => {
-        estaParando = true;
-      }, 5000);
-    }, 2000);
+        roleta.estaParando = true;
+      }, 3000);
+    }, 1000);
   });
 }
 function animarRoleta(){
-  if (!podeRodar) return;
-  rodando = true;
-  frames ++;
-  if (estaParando) velocidade = velocidade - 0.005;
+  const NUMERO_DE_FRAMES = 15;
+  const LIMITE_DA_BORDA = 191;
+  const LIMITE_DE_BLOCOS = 9;
+  if (!roleta.podeRodar) return;
+  roleta.rodando = true;
+  roleta.frames ++;
+  if (roleta.estaParando) roleta.velocidade = roleta.velocidade - 0.005;
   let posY;
   let novaPosY;
-   blocosAtivos.forEach (bloco => {
-     posY = parseFloat(bloco.style.top || '0px');
-     novaPosY = posY + velocidade;
+  blocosAtivos.forEach (bloco => {
+    posY = parseFloat(bloco.style.top || '0px');
+    novaPosY = posY + roleta.velocidade;
     bloco.style.top = novaPosY + "px";
-   });
-   while (blocosAtivos.length > 0 && blocosAtivos[0].offsetTop >= 191) {
-  apagarBloco();
-}
-  let blocosAtivoslength = blocosAtivos.length;
-  if (frames > 15 && blocosAtivos.length < 9){
-    if (quantidadeDeBlocos <= 56){
-    criarColunaAleatoria();
-    quantidadeDeBlocos++
-} else if (quantidadeDeBlocos === 57){
-    criarColunaAleatoria();
-    quantidadeDeBlocos++
-  } else if (quantidadeDeBlocos === 58){
-    gerenciarResultado();
-    quantidadeDeBlocos++
-  } else if (quantidadeDeBlocos === 59){
-    criarColunaAleatoria();
-    quantidadeDeBlocos++
-    podeParar = true;
+  });
+  while (blocosAtivos.length > 0 && blocosAtivos[0].offsetTop >= LIMITE_DA_BORDA) {
+    apagarBloco();
   }
-  frames = 0;
+  let blocosAtivoslength = blocosAtivos.length;
+  if (roleta.frames > NUMERO_DE_FRAMES && blocosAtivos.length < LIMITE_DE_BLOCOS){
+    if (roleta.quantidadeDeBlocos <= 56){
+      criarColunaAleatoria();
+      roleta.quantidadeDeBlocos++
+    } else if (roleta.quantidadeDeBlocos === 57){
+      criarColunaAleatoria();
+      roleta.quantidadeDeBlocos++
+    } else if (roleta.quantidadeDeBlocos === 58){
+      gerenciarResultado();
+      roleta.quantidadeDeBlocos++
+    } else if (roleta.quantidadeDeBlocos === 59){
+      criarColunaAleatoria();
+      roleta.quantidadeDeBlocos++
+      roleta.podeParar = true;
+    }
+    roleta.frames = 0;
   }
 
-if (podeParar && blocosAtivos[0].offsetTop < 191 && blocosAtivos[0].offsetTop > 188){
-  velocidade = 0;
-  rodando = false;
-  limparFocusRoleta();
-  mostrarResultado(rigged)
-  cancelAnimationFrame(animationFrameId);
-  return
+  if (roleta.podeParar && blocosAtivos[0].offsetTop < LIMITE_DA_BORDA && blocosAtivos[0].offsetTop > 188){
+    roleta.velocidade = 0;
+    roleta.rodando = false;
+    limparFocusRoleta();
+    mostrarResultado(roleta.rigged)
+    cancelAnimationFrame(roleta.animationFrameId);
+    return
+  }
+  roleta.animationFrameId = requestAnimationFrame(animarRoleta);
 }
-   animationFrameId = requestAnimationFrame(animarRoleta);
-}
+
+// funcões relacionadas ao resultado
 function criarElementosdoResultado(){
   const divResultado = document.createElement("div");
   divResultado.classList.add("divResultado");
@@ -278,6 +373,8 @@ function mostrarResultado(rigged){
     setarResultado("ganhou");
   }
 }
+
+// funcões relacionadas a criação de botões
 function criarBotao(tipo, texto, funcao){
   const botaoDiv = document.createElement("div");
   botaoDiv.classList.add("botaoDiv");
@@ -285,17 +382,17 @@ function criarBotao(tipo, texto, funcao){
   const botao = document.createElement("button");
   botao.classList.add("botao");
   botao.innerText = texto;
-    botao.addEventListener("click", ()=> {
-      funcao();
-      botao.style.pointerEvents = "none";
-      setTimeout(() => {
-        botao.style.pointerEvents = "auto";
-      }, 3000);
-    });
-    if (tipo === "botaoI"){
-      botao.classList.add("botaoI");
-      game.appendChild(botao);
-    } else {
-      botaoDiv.appendChild(botao);
-    }
+  botao.addEventListener("click", ()=> {
+    funcao();
+    botao.style.pointerEvents = "none";
+    setTimeout(() => {
+      botao.style.pointerEvents = "auto";
+    }, 1000);
+  });
+  if (tipo === "botaoI"){
+    botao.classList.add("botaoI");
+    game.appendChild(botao);
+  } else {
+    botaoDiv.appendChild(botao);
+  }
 }
