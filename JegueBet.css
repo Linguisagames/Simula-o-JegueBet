@@ -154,6 +154,7 @@ body {
   width: 319px;
   line-height: 50px;
   font-size: 1.2rem;
+  z-index: 9999;
   position: fixed;
   font-weight: bold;
   display: flex;
