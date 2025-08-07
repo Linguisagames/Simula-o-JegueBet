@@ -1,4 +1,3 @@
-let overlay;
 let blocosAtivos = [];
 const game = document.getElementById("game");
 const roleta = {
@@ -16,6 +15,7 @@ const roleta = {
   numeroAtual: null,
   ultimoNumero: null,
   rigged: null,
+  overlay: null,
 };
 const gerenciadorDeSaldo = {
   saldoAtual: 1000,
@@ -32,10 +32,11 @@ const gerenciadorDeSaldo = {
 // funcões relacionadas a criação do hud
 criarHud();
 function criarHud(){
+	criarLogo();
   criarAreaRoleta();
   criarAreaSaldo();
   criarBotao("botaoPlay", "JOGAR", gerenciarAreaAposta);
-  //criarBotao("botaoI", "i", gerarColuna);
+  criarBotao("botaoI","", criarAreaInformacao);
 }
 function criarAreaRoleta(){
   roleta.areaRoleta = document.createElement("div");
@@ -49,7 +50,40 @@ function criarAreaSaldo(){
   gerenciadorDeSaldo.areaSaldo = document.createElement("div");
   gerenciadorDeSaldo.areaSaldo.classList.add("areaSaldo");
   game.appendChild(gerenciadorDeSaldo.areaSaldo);
+  animarSurgir(gerenciadorDeSaldo.areaSaldo);
   gerenciadorDeSaldo.atualizarSaldo(gerenciadorDeSaldo.saldoAtual, gerenciadorDeSaldo.areaSaldo);
+}
+function criarLogo(){
+	const logo = document.createElement("div");
+	logo.classList.add("logo");
+	game.appendChild(logo);
+}
+
+// funcões relacionadas a criação da area de informações 
+function criarAreaInformacao() {
+  const divInfo = document.createElement("div");
+  divInfo.classList.add("divInfo");
+  game.appendChild(divInfo);
+  animarSurgir(divInfo);
+  criarTextoInfo(divInfo);
+  if (document.querySelector(".divInfo")) {
+  	divInfo.addEventListener("click", () => {
+  	divInfo.innerHTML = "";
+  	divInfo?.remove();
+  });
+  }
+}
+function criarTextoInfo(divInfo) {
+  const tInfo = document.createElement("p");
+  tInfo.classList.add("tInfo");
+  tInfo.innerText = `Este projeto foi desenvolvido com o objetivo de conscientizar sobre como é fácil manipular resultados em jogos de aposta online. É importante entender que, apesar da aparência realista, aqui não há nenhuma operação financeira verdadeira: o "saldo" utilizado é apenas uma variável virtual, sem conexão com dinheiro real ou backend.
+
+As imagens usadas foram geradas por inteligência artificial (ChatGPT) e não representam marcas ou serviços reais.
+
+Este site não incentiva ou promove jogos de azar, cassinos ou casas de apostas. O intuito é alertar e educar sobre os riscos e as práticas obscuras que podem existir nesses ambientes.
+
+Qualquer semelhança com sistemas de apostas reais é apenas para fins educacionais e não configura um convite ao jogo ou atividade comercial.`;
+  divInfo.appendChild(tInfo);
 }
 
 // funcões relacionadas ao gerenciamento do valor da aposta
@@ -93,24 +127,22 @@ function animarSaidadaAreaAposta(a){
     a.innerHTML = "";
   }, 950);
 }
-
 function criarBotaoDeAposta(valor, a){
   const botaoAposta = document.createElement("button");
   botaoAposta.classList.add("botaoAposta");
   a.appendChild(botaoAposta);
   botaoAposta.innerText = valor;
+  animarSurgir(botaoAposta);
   botaoAposta.addEventListener("click", () => {
     let novoValor = gerenciadorDeSaldo.saldoAtual - valor;
     gerenciadorDeSaldo.valorApostado = valor;
     gerenciadorDeSaldo.atualizarSaldo(novoValor, gerenciadorDeSaldo.pAreaAposta);
     animarSaidadaAreaAposta(gerenciadorDeSaldo.areaAposta);
     iniciarRoleta();
-    botaoAposta.style.pointerEvents = "none";
+    document.querySelectorAll(".botaoAposta").forEach((ele) => {
+  ele.style.pointerEvents = "none";
+});
   });
-  botaoAposta.classList.add("surgir");
-  setTimeout (() => {
-    botaoAposta.classList.remove("surgir");
-  }, 1500);
 }
 function criarBotoesDeAposta(a){
   criarBotaoDeAposta(50, a);
@@ -208,15 +240,15 @@ function criarColunaAleatoria(){
 
 // funcões relacionadas a inicialização da roleta
 function limparFocusRoleta(){
-  overlay.style.opacity = "0";
+  roleta.overlay.style.opacity = "0";
   setTimeout (() => {
-    overlay.remove();
+    roleta.overlay.remove();
   }, 2000);
 }
 function focusRoleta() {
-  overlay = document.createElement("div");
-  overlay.classList.add("overlay");
-  game.appendChild(overlay);
+  roleta.overlay = document.createElement("div");
+  roleta.overlay.classList.add("overlay");
+  game.appendChild(roleta.overlay);
 
   const jegue = document.createElement("div");
   jegue.classList.add("jegue");
@@ -225,7 +257,7 @@ function focusRoleta() {
 
   setTimeout(() => {
     jegue.style.transform = "translate(-50%, 25%)";
-    overlay.style.opacity = "1";
+    roleta.overlay.style.opacity = "1";
   }, 500);
 
   setTimeout(() => {
@@ -234,7 +266,7 @@ function focusRoleta() {
 
   setTimeout(() => {
     jegue.remove();
-    overlay.style.zIndex = "4";
+    roleta.overlay.style.zIndex = "4";
   }, 5000);
   setTimeout(() => {
   }, 5000);
@@ -375,24 +407,38 @@ function mostrarResultado(rigged){
 }
 
 // funcões relacionadas a criação de botões
-function criarBotao(tipo, texto, funcao){
-  const botaoDiv = document.createElement("div");
-  botaoDiv.classList.add("botaoDiv");
-  game.appendChild(botaoDiv);
+function criarBotao(tipo, texto, funcao) {
   const botao = document.createElement("button");
   botao.classList.add("botao");
-  botao.innerText = texto;
-  botao.addEventListener("click", ()=> {
+
+  if (tipo === "botaoI") {
+    botao.classList.add("botaoI");
+    const Iicon = document.createElement("i");
+    Iicon.classList.add("fa-solid", "fa-circle-info");
+    botao.appendChild(Iicon);
+    game.appendChild(botao);
+  } else {
+    botao.innerText = texto;
+    const botaoDiv = document.createElement("div");
+    botaoDiv.classList.add("botaoDiv");
+    botaoDiv.appendChild(botao);
+    game.appendChild(botaoDiv);
+    animarSurgir(botaoDiv);
+  }
+
+  botao.addEventListener("click", () => {
     funcao();
     botao.style.pointerEvents = "none";
     setTimeout(() => {
       botao.style.pointerEvents = "auto";
-    }, 1000);
+    }, 2000);
   });
-  if (tipo === "botaoI"){
-    botao.classList.add("botaoI");
-    game.appendChild(botao);
-  } else {
-    botaoDiv.appendChild(botao);
-  }
+}
+
+// funcao relacionada a animação
+function animarSurgir(elemento){
+	elemento.classList.add("surgir");
+  setTimeout (() => {
+  elemento.classList.remove("surgir");
+  }, 1500);
 }
