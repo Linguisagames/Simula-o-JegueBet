@@ -122,26 +122,59 @@ body::after {
   justify-content: center;
   align-items: center;
 }
+.bloco-estilo {
+  z-index: 4;
+  transition: transform 0.5s, opacity 0.4s;
+  top: 0px; /* Padrão, já que no código original é sempre 0 */
+  padding-left: 45px;
+  width: 50px;
+  height: 100px;
+  color: #111;
+  font-weight: bold;
+  font-size: 4.5rem;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
 .divInfo {
   background: rgba(255, 255, 255, 0.50);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border-radius: 14px;
-  outline: 1px solid rgba(255, 255, 255, 0.28);
-  padding: 15px;
-  top: 15px;
-  max-width: 300px;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) ;
+  border-radius: 14px ;
+  outline: 1px solid rgba(255, 255, 255, 0.28) ;
+  padding: 15px ;
+  width: 300px ;
   position: fixed;
-  font-weight: 600;
-  font-size: 1rem;
-  color: #222;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  transition: all 0.7s ease-in-out;
-  user-select: text;
-  line-height: 1.4;
-  z-index: 10000;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  font-weight: 600 ;
+  font-size: 1rem ;
+  color: #222 ;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) ;
+  transition: all 0.7s ease-in-out ;
+  user-select: text ;
+  line-height: 1.4 ;
+  display: flex ;
+  flex-direction: column ;
+  justify-content: center ;
+  align-items: center ;
+  z-index: 10000 ;
 }
-
+.botaoInfo {
+	all: unset;
+  background-color: #f6b624;
+  height: 30px;
+  text-align: center;
+  line-height: 1.2rem;
+  font-size: 1.2rem;
+  padding: 5px 10px;
+  border-radius: 20px;
+  position: relative;
+  z-index: 93994;
+}
 .pInfo {
   margin: 0;
   padding: 0;
@@ -232,6 +265,7 @@ body::after {
   position: fixed;
   font-weight: bold;
   display: flex;
+  z-index: 99999;
   transition: all 0.8s ease-in-out;
 }
 .areaAposta.minimizado {
@@ -281,7 +315,7 @@ body::after {
 @keyframes surgir {
   0% {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(10%);
   }
   100% {
     opacity: 1;
@@ -290,4 +324,17 @@ body::after {
 }
 .surgir {
   animation: surgir 1s ease forwards;
+}
+@keyframes fadein {
+	0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(10%);
+  }
+}
+.fadein {
+  animation: fadein 1s ease forwards;
 }
