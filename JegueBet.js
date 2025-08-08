@@ -53,10 +53,17 @@ function criarAreaSaldo(){
   animarSurgir(gerenciadorDeSaldo.areaSaldo);
   gerenciadorDeSaldo.atualizarSaldo(gerenciadorDeSaldo.saldoAtual, gerenciadorDeSaldo.areaSaldo);
 }
+function removerAreaSaldo(){
+	animarFadein(gerenciadorDeSaldo.areaSaldo);
+	setTimeout(() => {
+		gerenciadorDeSaldo.areaSaldo?.remove();
+	}, 1000);
+}
 function criarLogo(){
 	const logo = document.createElement("div");
 	logo.classList.add("logo");
 	game.appendChild(logo);
+	animarSurgir(logo);
 }
 
 // funcões relacionadas a criação da area de informações 
@@ -68,8 +75,11 @@ function criarAreaInformacao() {
   criarTextoInfo(divInfo);
   if (document.querySelector(".divInfo")) {
   	divInfo.addEventListener("click", () => {
+  	animarFadein(divInfo);
+  	setTimeout(() => {
   	divInfo.innerHTML = "";
   	divInfo?.remove();
+  	}, 700);
   });
   }
 }
@@ -84,6 +94,13 @@ Este site não incentiva ou promove jogos de azar, cassinos ou casas de apostas.
 
 Qualquer semelhança com sistemas de apostas reais é apenas para fins educacionais e não configura um convite ao jogo ou atividade comercial.`;
   divInfo.appendChild(tInfo);
+  criarBotaoInfo(divInfo);
+}
+function criarBotaoInfo(divInfo){
+	const botaoinfo = document.createElement("button");
+	botaoinfo.classList.add("botaoInfo");
+	botaoinfo.innerHTML = "Como é manipulado?";
+	divInfo.appendChild(botaoinfo);
 }
 
 // funcões relacionadas ao gerenciamento do valor da aposta
@@ -95,23 +112,24 @@ function gerenciarAreaAposta(){
   gerenciadorDeSaldo.pAreaAposta.classList.add("pAreaAposta");
   gerenciadorDeSaldo.areaAposta.appendChild(gerenciadorDeSaldo.pAreaAposta);
   animarEntradadaAreaAposta(gerenciadorDeSaldo.areaAposta);
+  removerAreaSaldo();
   setTimeout(() => {
-    gerenciadorDeSaldo.atualizarSaldo(1000, gerenciadorDeSaldo.pAreaAposta);
+    gerenciadorDeSaldo.atualizarSaldo(gerenciadorDeSaldo.saldoAtual, gerenciadorDeSaldo.pAreaAposta);
     criarBotoesDeAposta(gerenciadorDeSaldo.areaAposta);
-  }, 2500);
+  }, 1500);
 }
 function animarEntradadaAreaAposta(a){
   a.classList.add("minimizado");
   setTimeout(() => {
     a.classList.remove("minimizado");
-  }, 1900);
+  }, 1100);
   a.style.transform = "translateY(1000%)";
   setTimeout(() => {
   a.style.transform = "translateY(-20%)";
   setTimeout(() => {
     a.style.transform = "translateY(0%)";
-  }, 1400);
-  }, 1150);
+  }, 950);
+  }, 550);
 }
 function animarSaidadaAreaAposta(a){
   a.style.transform = "translateY(0%)";
@@ -154,12 +172,12 @@ function criarBotoesDeAposta(a){
 // funcões relacionadas a criação de numeros
 function criarNumero(numeroAtual){
   const bloco = document.createElement("div");
-  bloco.classList.add("bloco");
   roleta.divRoleta.appendChild(bloco);
   bloco.innerText = numeroAtual;
   bloco.dataset.id = Date.now();
   blocosAtivos.push(bloco);
-  setarEstiloBloco(bloco);
+  let index = blocosAtivos.length - 1;
+aplicarEstiloBloco(bloco, index);
   bloco.style.transform = "translateY(-40%)";
   bloco.style.opacity = "0";
   setTimeout(() =>{
@@ -167,27 +185,12 @@ function criarNumero(numeroAtual){
     bloco.style.opacity = "1";
   }, 10);
 }
-function setarEstiloBloco(elemento){
-  let index = blocosAtivos.length - 1;
-  let linha = Math.floor(index / 3);
+function aplicarEstiloBloco(elemento, index) {
   let coluna = index % 3;
-  let top = 0;
   let left = coluna * 80;
-  elemento.style.zIndex = "4";
-  elemento.style.transition = "transform 0.5s, opacity 0.4s";
-  elemento.style.top = top + "px";
+
+  elemento.classList.add("bloco-estilo");
   elemento.style.left = left + "px";
-  elemento.style.paddingLeft = "45px";
-  elemento.style.width = "50px";
-  elemento.style.height = "100px";
-  elemento.style.color = "#111";
-  elemento.style.fontWeight = "bold";
-  elemento.style.fontSize = "4.5rem";
-  elemento.style.position = "absolute";
-  elemento.style.display = "flex";
-  elemento.style.alignItems = "center";
-  elemento.style.justifyContent = "center";
-  elemento.style.textAlign = "center";
 }
 function gerarNumero(estado){
   if (estado === "repetir") {
@@ -372,7 +375,7 @@ function setarResultado(resultado){
   const { divResultado, h1Resultado, pResultado } = criarElementosdoResultado();
   if (resultado === "ganhou"){
     h1Resultado.innerText = "Você ganhou!";
-    pResultado.innerText = "+500R$";
+    pResultado.innerText = "+" + gerenciadorDeSaldo.valorApostado * 2;
     pResultado.style.color = "#097f47";
   } else if (resultado === "perdeu"){
     h1Resultado.innerText = "Você perdeu!";
@@ -380,7 +383,7 @@ function setarResultado(resultado){
     setTimeout(() => {
       document.body.classList.remove("shakeTela");
     }, 1000);
-    pResultado.innerText = "-500R$";
+    pResultado.innerText = "-" + gerenciadorDeSaldo.valorApostado;
     pResultado.style.color = "#c50f0f";
   }
   animarResultado(divResultado);
@@ -401,9 +404,21 @@ function animarResultado(div){
 function mostrarResultado(rigged){
   if (rigged) {
     setarResultado("perdeu");
+    calcularResultado("perdeu");
   }else if (!rigged){
     setarResultado("ganhou");
+    calcularResultado("ganhou");
   }
+  criarAreaSaldo();
+}
+function calcularResultado(resultado){
+	if (resultado === "perdeu"){
+		gerenciadorDeSaldo.saldoAtual -= gerenciadorDeSaldo.valorApostado;
+	} else if (resultado === "ganhou"){
+		gerenciadorDeSaldo.saldoAtual += gerenciadorDeSaldo.valorApostado * 2;
+	}
+	gerenciadorDeSaldo.atualizarSaldo(gerenciadorDeSaldo.saldoAtual, gerenciadorDeSaldo.areaSaldo);
+		gerenciadorDeSaldo.atualizarSaldo(gerenciadorDeSaldo.saldoAtual, gerenciadorDeSaldo.pAreaAposta);
 }
 
 // funcões relacionadas a criação de botões
@@ -441,4 +456,28 @@ function animarSurgir(elemento){
   setTimeout (() => {
   elemento.classList.remove("surgir");
   }, 1500);
+}
+function animarFadein(elemento){
+	elemento.classList.add("fadein");
+  setTimeout (() => {
+  elemento.classList.remove("fadein");
+  }, 1500);
+}
+function mesclarSurgireFadein(elemento){
+	animarSurgir(elemento);
+	animarFadein(elemento);
+}
+function criarParticulaNumero(numero, cor){
+	const numeroParticula = document.createElement("p");
+ numeroParticula.classList.add("pAreaAposta");
+ numeroParticula.style.color = cor;
+ numeroParticula.innerText = numero;
+ animarSurgir(numeroParticula);
+ setTimeout(() => {
+ 	animarFadein(numeroParticula);
+ }, 1000);
+ game.appendChild(numeroParticula);
+ setTimeout(() => {
+ numeroParticula?.remove();
+ }, 2000);
 }
